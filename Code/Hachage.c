@@ -3,55 +3,71 @@
 #include"Hachage.h"
 
 TableHachage* creer_TableHachage(int m){
-    if(m<1){
-        printf("Table de hachage ne peut pas avoir taille nulle ou négative\n");
+    // Vérifier que la taille de la table de hachage est valide
+    if(m < 1){
+        printf("Table de hachage ne peut pas avoir une taille nulle ou négative\n");
         return NULL;
     }
 
+    // Allocation de mémoire pour la structure TableHachage
     TableHachage *H = (TableHachage*)malloc(sizeof(TableHachage));
-    if(H==NULL){
+    // Vérifier si l'allocation de mémoire a réussi
+    if(H == NULL){
         printf("Erreur malloc TableHachage\n");
         return NULL;
     }
 
-    H->nbElement = 0;
-    H->tailleMax = m;
-    H->T = (CellNoeud**)malloc(sizeof(CellNoeud*)*m);
+    // Initialisation des attributs de la table de hachage
+    H->nbElement = 0; // Nombre d'éléments dans la table
+    H->tailleMax = m; // Taille maximale de la table
+
+    // Allocation de mémoire pour le tableau de pointeurs vers les listes chaînées
+    H->T = (CellNoeud**)malloc(sizeof(CellNoeud*) * m);
+    // Vérifier si l'allocation de mémoire a réussi
     if(H->T == NULL){
         printf("Erreur malloc H->T creation TableHachage\n");
+        // En cas d'échec, libérer la mémoire allouée précédemment pour la structure TableHachage
         free(H);
         return NULL;
     }
 
-    //Initialisation des pointeurs du tableau à NULL
-    for(int i=0; i<m; i++){
+    // Initialisation des pointeurs du tableau à NULL
+    for(int i = 0; i < m; i++){
         H->T[i] = NULL;
     }
 
+    // Renvoyer un pointeur vers la table de hachage nouvellement créée
     return H;
 }
 
-//Liberation Table de Hachage
+
 void liberer_TableHachage(TableHachage *H){
-    if(H==NULL){
-        printf("Table de Hachage deja libérée\n");
+    // Vérifier si la table de hachage est déjà libérée
+    if(H == NULL){
+        printf("Table de Hachage déjà libérée\n");
         return;
     }
 
     CellNoeud *temp, *c;
-    for(int i=0; i<(H->tailleMax); i++){
-        c = H->T[i];
+
+    // Parcourir chaque élément du tableau de la table de hachage
+    for(int i = 0; i < H->tailleMax; i++){
+        c = H->T[i]; // Pointeur vers la tête de la liste chaînée à l'indice i
         temp = NULL;
+        // Parcourir la liste chaînée
         while(c){
-            temp = c;
-            c = c->suiv;
-            liberer_CellNoeud(temp);
+            temp = c; // Stocker le pointeur actuel avant de libérer la mémoire
+            c = c->suiv; // Avancer au prochain élément de la liste
+            liberer_CellNoeud(temp); // Libérer la mémoire de l'élément actuel
         }
     }
 
+    // Libérer le tableau de pointeurs de la table de hachage
     free(H->T);
+    // Libérer la mémoire de la structure de la table de hachage
     free(H);
 }
+
 
 //Obtention de la cle
 int clef(double x, double y){
@@ -60,148 +76,164 @@ int clef(double x, double y){
 
 //Obtention de la valeur de hachage
 int hachage(int cle, int m){
-    if(cle<0){
-        printf("Impossible de hacher: la clef n'est pas valide\n");
-        return -1;
+    // Vérifie si la clé est négative
+    if(cle < 0){
+        printf("Impossible de hacher: la clé n'est pas valide\n");
+        return -1; // Retourne une valeur d'erreur
     }
 
-    double A = (sqrt(5)-1)/2;
+    // Définition de la constante A, dérivée de la formule de hachage
+    double A = (sqrt(5) - 1) / 2;
 
-    double var1 = cle*A;
-    int var2 = cle*A;
+    // Calcul des deux parties de la formule de hachage
+    double var1 = cle * A;
+    int var2 = cle * A;
 
-    int res = m*(var1 - var2);
+    // Calcul de la valeur de hachage finale
+    int res = m * (var1 - var2);
 
+    // Retourne la valeur de hachage calculée
     return res;
 }
 
-//Recherche / Création de noeud dans Reseau avec table de hachage
+
 Noeud* rechercheCreeNoeudHachage(Reseau* R, TableHachage* H, double x, double y){
-    if(R==NULL){
-        printf("Impossible de chercher noeud dans Reseau qui n'existe pas\n");
+    // Vérifie si le réseau et la table de hachage existent
+    if(R == NULL){
+        printf("Impossible de chercher le nœud dans un réseau qui n'existe pas\n");
         return NULL;
     }
-    if(H==NULL){
-        printf("Impossible de chercher noeud dans table de hachage qui n'existe pas\n");
+    if(H == NULL){
+        printf("Impossible de chercher le nœud dans une table de hachage qui n'existe pas\n");
         return NULL;
     }
 
-    //Recherche du noeud dans la table de Hachage
+    // Calcul de la clé à partir des coordonnées
     int cle = clef(x, y);
+
+    // Calcul de la valeur de hachage pour cette clé
     int hach = hachage(cle, H->tailleMax);
 
-    CellNoeud *c = H->T[hach]; //Premier noeud au bon indice de la table de hachage
+    // Recherche du nœud dans la table de hachage
+    CellNoeud *c = H->T[hach];
 
-    //Boucle cherchant le noeud dans la liste des noeud au bon indice de la table
+    // Boucle de recherche dans la liste des nœuds à l'index calculé dans la table de hachage
     while(c){
         if((c->nd->x == x) && (c->nd->y == y)){
+            // Si le nœud est trouvé, retourne le nœud
             return c->nd;
         }
-
         c = c->suiv;
     }
 
-    //Si nous sortons de la boucle, alors le noeud n'existe pas dans le réseau. On doit donc l'ajouter
+    // Si le nœud n'est pas trouvé, on doit le créer et l'ajouter au réseau et à la table de hachage
+
+    // Création du nœud
     Noeud *n = creer_Noeud((R->nbNoeuds)+1, x, y);
-    if(n==NULL){ 
-        printf("Erreur création Noeud rechercheCreeNoeudHachage\n");
+    if(n == NULL){ 
+        printf("Erreur création du nœud dans rechercheCreeNoeudHachage\n");
         return NULL;
     }
-    //Création CellNoeud du reseau
-    c = creer_CellNoeud(n);
-    if(c==NULL){ 
-        printf("Erreur création CellNoeud rechercheCreeNoeudListe\n");
-        liberer_Noeud(n);
-        return NULL;
-    }
-    //Création CellNoeud de la table de hachage
-    CellNoeud *c_hach = creer_CellNoeud(n);
-    if(c_hach==NULL){ 
-        printf("Erreur création CellNoeud rechercheCreeNoeudListe\n");
-        liberer_CellNoeud(c);
+
+    // Création de la cellule de nœud pour le réseau
+    CellNoeud *c_reseau = creer_CellNoeud(n);
+    if(c_reseau == NULL){ 
+        printf("Erreur création de la cellule de nœud dans rechercheCreeNoeudHachage\n");
         liberer_Noeud(n);
         return NULL;
     }
 
-    //Insertion noeud dans le reseau
-    c->suiv = R->noeuds;
-    R->noeuds = c;
+    // Création de la cellule de nœud pour la table de hachage
+    CellNoeud *c_hach = creer_CellNoeud(n);
+    if(c_hach == NULL){ 
+        printf("Erreur création de la cellule de nœud dans rechercheCreeNoeudHachage\n");
+        liberer_CellNoeud(c_reseau);
+        liberer_Noeud(n);
+        return NULL;
+    }
+
+    // Ajout du nœud au réseau
+    c_reseau->suiv = R->noeuds;
+    R->noeuds = c_reseau;
     (R->nbNoeuds)++;
 
-    //Insertion noeud dans la table de hachage
+    // Ajout du nœud à la table de hachage
     c_hach->suiv = H->T[hach];
     H->T[hach] = c_hach;
     (H->nbElement)++;
 
+    // Retourne le nœud créé
     return n;
 }
 
 
+
 //Reconstitution Reseau avec table de hachage a partir d'une Chaine
 Reseau* reconstitueReseauHachage(Chaines *C, int M){
-    if(C==NULL){
-        printf("Impossible de construire reseau a partir d'une chaine qui n'existe pas\n");
+    // Vérifie si la chaîne existe
+    if(C == NULL){
+        printf("Impossible de construire le réseau à partir d'une chaîne qui n'existe pas\n");
         return NULL;
     }
 
-    //Création Reseau
+    // Crée un nouveau réseau
     Reseau* R = creer_Reseau(C->gamma);
-    if(R==NULL){ 
-        printf("Erreur création Réseau reconstitueReseauHachage\n");
+    if(R == NULL){ 
+        printf("Erreur création du réseau dans reconstitueReseauHachage\n");
         return NULL;
     }
 
-    //Création Table de Hachage
+    // Crée une nouvelle table de hachage
     TableHachage *H = creer_TableHachage(M);
-    if(H==NULL){
-        printf("Erreur création Table de Hachage reconstitueReseauHachage\n");
+    if(H == NULL){
+        printf("Erreur création de la table de hachage dans reconstitueReseauHachage\n");
         liberer_Reseau(R);
         return NULL;
     }
 
-    CellChaine *c = C->chaines; //Chaines
-    CellPoint *prec, *p; //Points des chaines
-    Noeud *extrA, *extrB, *cour; //Noeuds: extremites des commodites et le noeud courant
-    Noeud *voisin; //La cellule du noeud ajouté précédemment
+    CellChaine *c = C->chaines; // Chaînes
+    CellPoint *prec, *p; // Points des chaînes
+    Noeud *extrA, *extrB, *cour; // Noeuds: extrémités des commodités et le nœud courant
+    Noeud *voisin; // Le nœud ajouté précédemment
 
-    //Boucle passant par toutes les chaines (Boucle for est plus fiable)
-    for(int i=0; i<(C->nbChaines); i++){
+    // Boucle parcourant toutes les chaînes
+    for(int i = 0; i < C->nbChaines; i++){
         
         p = c->points;
         prec = NULL;
         voisin = NULL;
-        //Boucle passant par tous les points d'une chaine
+        // Boucle parcourant tous les points d'une chaîne
         while(p){
-            //Recherche ou ajout du noeud correspondant au point de la chaine
+            // Recherche ou ajout du nœud correspondant au point de la chaîne
             cour = rechercheCreeNoeudHachage(R, H, p->x, p->y);
             if(cour == NULL){
-                printf("Erreur recherche noeud dans reconstitution du reseau\n");
+                printf("Erreur recherche nœud lors de la reconstitution du réseau\n");
                 liberer_Reseau(R);
                 liberer_TableHachage(H);
                 return NULL;
             }
 
-            //Recuperation extremite A de la commodite
+            // Récupération de l'extrémité A de la commodité
             if(prec == NULL){
                 extrA = cour;
             }
 
-            //Mise a jour des voisins
+            // Mise à jour des voisins
             maj_voisins(R, voisin, cour);
 
-            //Le voisin du prochain noeud est ce noeud
+            // Le voisin du prochain nœud est ce nœud
             voisin = cour;
             prec = p;
             p = p->suiv;
         }
 
-        //Recuperation extremite B de la commodite
+        // Récupération de l'extrémité B de la commodité
         extrB = cour;
 
-        //Creation et ajout de la commodite
+        // Création et ajout de la commodité
         CellCommodite* C = creer_CellCommodite(extrA, extrB);
-        if(C==NULL){
-            printf("Erreur création commodite reconstitueReseauListe\n");
+        if(C == NULL){
+            printf("Erreur création de la commodité dans reconstitueReseauListe\n");
             liberer_Reseau(R);
             liberer_TableHachage(H);
             return NULL;
@@ -209,10 +241,10 @@ Reseau* reconstitueReseauHachage(Chaines *C, int M){
         C->suiv = R->commodites;
         R->commodites = C;
 
-        c = c->suiv; //Passage a la chaine suivante
+        c = c->suiv; // Passage à la chaîne suivante
     }
 
-    //Liberation table de hachage (utilisée que ici)
+    // Libération de la table de hachage (utilisée uniquement ici)
     liberer_TableHachage(H);
 
     return R;
