@@ -3,185 +3,204 @@
 #include"Reseau.h"
 
 //Fonctions de création et libération
-//Création Noeud
-Noeud* creer_Noeud(int num, double x, double y){
-    Noeud *n = (Noeud*)malloc(sizeof(Noeud));
-    if(n==NULL){
-        printf("Erreur malloc Noeud\n");
-        return NULL;
-    }
-
-    n->num = num;
-    n->x = x;
-    n->y = y;
-    n->voisins = NULL;
-
-    return n;
-}
-
-//Liberation Noeud
-void liberer_Noeud(Noeud* n){
-    if(n==NULL){
-        printf("Noeud deja libéré\n");
-        return;
-    }
-
-    CellNoeud *temp, *c = n->voisins;
-    while(c){
-        temp = c;
-        c = c->suiv;
-        liberer_CellNoeud(temp);
-    }
-    free(n);
-}
-
-
-//Création CellNoeud
+// Crée une nouvelle cellule de voisin contenant le noeud donné.
 CellNoeud* creer_CellNoeud(Noeud* n){
+    // Alloue de la mémoire pour la cellule de voisin
     CellNoeud *c = (CellNoeud*)malloc(sizeof(CellNoeud));
     if(c==NULL){
         printf("Erreur malloc CellNoeud\n");
         return NULL;
     }
 
+    // Initialise la cellule de voisin avec le noeud donné
     c->nd = n;
-    c->suiv = NULL;
+    c->suiv = NULL; // Initialise le pointeur suivant à NULL
 
-    return c;
+    return c; // Renvoie la nouvelle cellule de voisin créée
 }
 
-//Liberation CellNoeud
-void liberer_CellNoeud(CellNoeud *c){
-    if(c==NULL){
-        printf("CellNoeud déjà libéré\n");
+
+//Liberation Noeud
+// Libère la mémoire allouée pour un noeud et ses voisins
+void liberer_Noeud(Noeud* n){
+    if(n == NULL){
+        printf("Noeud déjà libéré\n"); // Vérifie si le noeud est déjà libéré
         return;
     }
 
-    c->nd = NULL;
-    free(c);
+    CellNoeud *temp, *c = n->voisins; // Initialise des pointeurs pour parcourir la liste des voisins
+    while(c){ // Parcourt la liste des voisins
+        temp = c; // Stocke le voisin courant dans une variable temporaire
+        c = c->suiv; // Passe au voisin suivant
+        liberer_CellNoeud(temp); // Libère la mémoire allouée pour le voisin
+    }
+
+    free(n); // Libère la mémoire allouée pour le noeud lui-même
 }
 
 
-//Création CellCommodité
+
+// Crée une nouvelle cellule de noeud et l'initialise avec le noeud spécifié
+CellNoeud* creer_CellNoeud(Noeud* n){
+    CellNoeud *c = (CellNoeud*)malloc(sizeof(CellNoeud)); // Alloue de la mémoire pour la cellule de noeud
+    if(c == NULL){
+        printf("Erreur malloc CellNoeud\n"); // Vérifie si l'allocation de mémoire a échoué
+        return NULL;
+    }
+
+    c->nd = n; // Initialise le pointeur vers le noeud
+    c->suiv = NULL; // Initialise le pointeur vers le voisin suivant à NULL
+
+    return c; // Retourne la nouvelle cellule de noeud créée
+}
+
+
+// Libère la mémoire allouée pour une cellule de noeud
+void liberer_CellNoeud(CellNoeud *c){
+    if(c == NULL){
+        printf("CellNoeud déjà libéré\n"); // Vérifie si la cellule est déjà libérée
+        return;
+    }
+
+    c->nd = NULL; // Définit le noeud pointé par la cellule à NULL pour éviter les accès accidentels
+    free(c); // Libère la mémoire allouée pour la cellule
+}
+
+
+
+// Crée une cellule de commodité avec les extrémités données
 CellCommodite* creer_CellCommodite(Noeud* extrA, Noeud* extrB){
+    // Vérifie si les extrémités sont valides
     if(extrA == NULL || extrB == NULL){
         printf("Erreur création CellCommodite: extremité n'existe pas\n");
         return NULL;
     }
 
+    // Alloue de la mémoire pour la cellule de commodité
     CellCommodite* C = (CellCommodite*)malloc(sizeof(CellCommodite));
-    if(C==NULL){
-        printf("Erreur malloc CellCommodite\n");
+    if(C == NULL){
+        printf("Erreur malloc CellCommodite\n"); // Vérifie si l'allocation a échoué
         return NULL;
     }
 
+    // Initialise les extrémités de la commodité avec les valeurs données
     C->extrA = extrA;
     C->extrB = extrB;
 
-    return C;
+    return C; // Retourne la cellule de commodité nouvellement créée
 }
 
-//Libération CellCommodite
+
+// Libère la mémoire allouée pour une cellule de commodité
 void liberer_CellCommodite(CellCommodite *C){
-    if(C==NULL){
-        printf("Commodite déjà libérée\n");
+    // Vérifie si la cellule de commodité existe
+    if(C == NULL){
+        printf("Commodite déjà libérée\n"); // Indique que la commodité est déjà libérée
         return;
     }
 
+    // Définit les extrémités de la commodité comme nulles
     C->extrA = NULL;
     C->extrB = NULL;
 
-    free(C);
+    free(C); // Libère la mémoire de la cellule de commodité
 }
 
 
-//Création Réseau
+
+// Crée une nouvelle instance de réseau
 Reseau* creer_Reseau(int gamma){
+    // Alloue de la mémoire pour la nouvelle instance de réseau
     Reseau* r = (Reseau*)malloc(sizeof(Reseau));
-    if(r==NULL){
-        printf("Erreur malloc Reseau\n");
-        return NULL;
+    // Vérifie si l'allocation de mémoire a réussi
+    if(r == NULL){
+        printf("Erreur malloc Reseau\n"); // Affiche un message d'erreur si l'allocation a échoué
+        return NULL; // Retourne NULL pour indiquer une erreur
     }
 
+    // Initialise les attributs du réseau
     r->nbNoeuds = 0;
     r->gamma = gamma;
     r->noeuds = NULL;
     r->commodites = NULL;
 
-    return r;
+    return r; // Retourne la nouvelle instance de réseau
 }
 
-//Libération Reseau
+
+// Libère la mémoire allouée pour une instance de réseau
 void liberer_Reseau(Reseau *R){
-    if(R==NULL){
-        printf("Reseau deja libéré\n");
-        return;
+    // Vérifie si le réseau existe
+    if(R == NULL){
+        printf("Reseau deja libéré\n"); // Affiche un message indiquant que le réseau est déjà libéré
+        return; // Quitte la fonction
     }
 
-    //Liberation Noeuds
+    // Libération des noeuds
     CellNoeud *tempc, *c = R->noeuds;
     while(c){
-        tempc = c;
-        c = c->suiv;
-        liberer_Noeud(tempc->nd);
-        liberer_CellNoeud(tempc);
+        tempc = c; // Stocke le pointeur actuel dans une variable temporaire
+        c = c->suiv; // Avance au prochain noeud dans la liste
+        liberer_Noeud(tempc->nd); // Libère le noeud courant
+        liberer_CellNoeud(tempc); // Libère la cellule de noeud courante
     }
 
-    //Liberation Commodites
+    // Libération des commodités
     CellCommodite *tempC, *C = R->commodites;
     while(C){
-        tempC = C;
-        C = C->suiv;
-        liberer_CellCommodite(tempC);
+        tempC = C; // Stocke le pointeur actuel dans une variable temporaire
+        C = C->suiv; // Avance au prochain élément dans la liste
+        liberer_CellCommodite(tempC); // Libère la cellule de commodité courante
     }
 
-    free(R);
+    free(R); // Libère la mémoire allouée pour l'instance de réseau
 }
+
 
 
 
 //Question 2.1
+// Recherche un nœud dans le réseau et le crée s'il n'existe pas
 Noeud* rechercheCreeNoeudListe(Reseau *R, double x, double y){
-    if(R==NULL){
-        printf("Impossible de chercher noeud: Reseau non créé\n");
-        return NULL;
+    // Vérifie si le réseau est valide
+    if(R == NULL){
+        printf("Impossible de chercher noeud: Reseau non créé\n"); // Affiche un message d'erreur
+        return NULL; // Renvoie NULL car le réseau n'est pas valide
     }
 
-    //Recherche du noeud dans le réseau
-
+    // Recherche du nœud dans le réseau
     CellNoeud *c = R->noeuds, *prec = NULL;
-    for(int i=0; (i < R->nbNoeuds) && (c->nd->x <= x); i++){
+    for(int i = 0; (i < R->nbNoeuds) && (c->nd->x <= x); i++){
+        // Vérifie si les coordonnées x correspondent
         if(c->nd->x == x){
+            // Vérifie si les coordonnées y correspondent
             if(c->nd->y == y){
-                return c->nd;
+                return c->nd; // Renvoie le nœud s'il est trouvé dans le réseau
             }else if(c->nd->y > y){
-                break;
+                break; // Sort de la boucle car la coordonnée y dépasse la valeur recherchée
             }
         }
 
-        prec = c;
-
-        c = c->suiv;
+        prec = c; // Stocke la cellule actuelle comme précédente
+        c = c->suiv; // Avance à la cellule suivante
     }
 
-    //Cas où nous sortons de la boucle: le noeud n'existe pas dans le réseau. On doit donc le créer puis l'ajouter
-    Noeud *n = creer_Noeud((R->nbNoeuds)+1, x, y);
-    if(n==NULL){ 
-        printf("Erreur création Noeud rechercheCreeNoeudListe\n");
-        return NULL;
+    // Si le nœud n'est pas trouvé dans le réseau, il doit être créé puis ajouté
+    Noeud *n = creer_Noeud((R->nbNoeuds) + 1, x, y); // Crée un nouveau nœud avec l'index incrémenté
+    if(n == NULL){ 
+        printf("Erreur création Noeud rechercheCreeNoeudListe\n"); // Affiche un message d'erreur
+        return NULL; // Renvoie NULL en cas d'erreur de création du nœud
     }
 
-    CellNoeud* cn = creer_CellNoeud(n);
-    if(cn==NULL){ 
-
-        printf("Erreur création CellNoeud rechercheCreeNoeudListe\n");
-        liberer_Noeud(n);
-        return NULL;
+    CellNoeud* cn = creer_CellNoeud(n); // Crée une nouvelle cellule pour le nœud
+    if(cn == NULL){ 
+        printf("Erreur création CellNoeud rechercheCreeNoeudListe\n"); // Affiche un message d'erreur
+        liberer_Noeud(n); // Libère la mémoire allouée pour le nœud
+        return NULL; // Renvoie NULL en cas d'erreur de création de la cellule
     }
 
-
-    /*Ajout du noeud de manière a garder la liste de noeuds créés triée*/
-    if(prec==NULL){
+    // Ajoute le nœud à la liste de manière à garder la liste des nœuds triée
+    if(prec == NULL){
         cn->suiv = R->noeuds;
         R->noeuds = cn;
     }else{
@@ -189,213 +208,227 @@ Noeud* rechercheCreeNoeudListe(Reseau *R, double x, double y){
         prec->suiv = cn;
     }
 
-    (R->nbNoeuds)++;
+    (R->nbNoeuds)++; // Incrémente le nombre total de nœuds dans le réseau
 
-    return n;
+    return n; // Renvoie le nœud créé ou trouvé dans le réseau
 }
+
 
 //Question 2.2
+// Met à jour la liste des voisins pour deux nœuds dans le réseau
 void maj_voisins(Reseau *R, Noeud *v, Noeud *n){
-    if(n==NULL){
-        printf("Impossible de mettre a jour noeud qui n'existe pas\n");
-        return;
+    // Vérifie si le nœud n est valide
+    if(n == NULL){
+        printf("Impossible de mettre à jour un noeud qui n'existe pas\n"); // Affiche un message d'erreur
+        return; // Sort de la fonction
     }
 
-    if(v==NULL){ //Cas ou il n'y a pas de voisin à ajouter
-        return;
+    // Vérifie si le nœud v est NULL (cas où il n'y a pas de voisin à ajouter)
+    if(v == NULL){
+        return; // Sort de la fonction car aucun voisin à ajouter
     }
 
-    //On vérifie si l'on a pas déjà ajouté ce voisin (par moyen d'une autre chaine)
+    // Vérifie si le voisin v est déjà ajouté à la liste des voisins du nœud n
     CellNoeud *dejala = n->voisins;
     while(dejala){
-        if(dejala->nd->num == v->num){
-            //Si le voisin a deja été ajouté, alors on sort de la fonction
-            return;
+        if(dejala->nd->num == v->num){ // Compare les numéros de nœuds pour vérifier si le voisin est déjà ajouté
+            return; // Sort de la fonction car le voisin est déjà ajouté
         }
-        dejala = dejala->suiv;
+        dejala = dejala->suiv; // Passe au voisin suivant dans la liste
     }
 
-    //Ajout du noeud voisin dans la liste des voisins
-    CellNoeud *voisin = creer_CellNoeud(v);
-    voisin->suiv = n->voisins;
-    n->voisins = voisin;
+    // Ajoute le nœud voisin v à la liste des voisins du nœud n
+    CellNoeud *voisin = creer_CellNoeud(v); // Crée une nouvelle cellule pour le voisin v
+    voisin->suiv = n->voisins; // Ajoute le voisin à la tête de la liste des voisins de n
+    n->voisins = voisin; // Met à jour la tête de la liste des voisins de n avec le nouveau voisin
 
-    //Mise a jour des voisins du voisin
-    CellNoeud *vois_du_vois = creer_CellNoeud(n);
-    vois_du_vois->suiv = v->voisins;
-    v->voisins = vois_du_vois;
+    // Mise à jour des voisins du voisin v avec le nœud n
+    CellNoeud *vois_du_vois = creer_CellNoeud(n); // Crée une nouvelle cellule pour le nœud n
+    vois_du_vois->suiv = v->voisins; // Ajoute le nœud n à la tête de la liste des voisins de v
+    v->voisins = vois_du_vois; // Met à jour la tête de la liste des voisins de v avec le nouveau nœud
 }
 
+
+// Reconstitue un réseau à partir d'une structure Chaines
 Reseau* reconstitueReseauListe(Chaines *C){
-    if(C==NULL){
-        printf("Impossible de construire reseau a partir d'une chaine qui n'existe pas\n");
+    // Vérifie si la structure Chaines est valide
+    if(C == NULL){
+        printf("Impossible de construire un réseau à partir d'une chaîne inexistante\n");
         return NULL;
     }
 
+    // Crée un nouveau réseau avec le paramètre gamma de la structure Chaines
     Reseau* R = creer_Reseau(C->gamma);
-    if(R==NULL){ 
-        printf("Erreur création Réseau reconstitueReseauListe\n");
+    if(R == NULL){ 
+        printf("Erreur lors de la création du réseau dans reconstitueReseauListe\n");
         return NULL;
     }
 
-    CellChaine *c = C->chaines; //Chaines
-    CellPoint *prec, *p; //Points des chaines
-    Noeud *extrA, *extrB, *cour; //Noeuds: extremites des commodites et le noeud courant
-    Noeud *voisin = NULL; //La cellule du noeud ajouté précédemment
+    // Parcours de toutes les chaines dans la structure Chaines
+    CellChaine *c = C->chaines; // Pointeur vers la première chaîne
+    CellPoint *prec, *p; // Points des chaines
+    Noeud *extrA, *extrB, *cour; // Extrémités des commodités et nœud courant
+    Noeud *voisin = NULL; // Nœud précédemment ajouté
 
-    //Boucle passant par toutes les chaines (Boucle for est plus fiable)
-    for(int i=0; i<(C->nbChaines); i++){
-        //Boucle passant par tous les points d'une chaine
-        p = c->points;
-        prec = NULL;
-        voisin = NULL;
-        while(p){
-            //Recherche ou ajout du noeud correspondant au point de la chaine
+    for(int i = 0; i < C->nbChaines; i++){ // Boucle pour chaque chaîne
+        p = c->points; // Pointeur vers le premier point de la chaîne
+        prec = NULL; // Pointeur vers le point précédent (initialisé à NULL)
+        voisin = NULL; // Réinitialise le voisin précédent à NULL
+        while(p){ // Parcours de tous les points de la chaîne
+            // Recherche ou création du nœud correspondant au point de la chaîne
             cour = rechercheCreeNoeudListe(R, p->x, p->y);
             if(cour == NULL){
-                printf("Erreur recherche noeud dans reconstitution du reseau\n");
+                printf("Erreur lors de la recherche du nœud dans la reconstitution du réseau\n");
                 liberer_Reseau(R);
                 return NULL;
             }
 
-            //Recuperation extremite A de la commodite
+            // Récupération de l'extrémité A de la commodité
             if(prec == NULL){
                 extrA = cour;
             }
 
-            //Mise a jour des voisins
+            // Mise à jour des voisins
             maj_voisins(R, voisin, cour);
 
-            //Le voisin du prochain noeud est ce noeud
+            // Le voisin du prochain nœud est le nœud courant
             voisin = cour;
             prec = p;
-            p = p->suiv;
+            p = p->suiv; // Passage au point suivant dans la chaîne
         }
 
-        //Recuperation extremite B de la commodite
+        // Récupération de l'extrémité B de la commodité
         extrB = cour;
 
-        //Creation et ajout de la commodite
+        // Création et ajout de la commodité
         CellCommodite* C = creer_CellCommodite(extrA, extrB);
-        if(C==NULL){
-            printf("Erreur création commodite reconstitueReseauListe\n");
+        if(C == NULL){
+            printf("Erreur lors de la création de la commodité dans reconstitueReseauListe\n");
             liberer_Reseau(R);
             return NULL;
         }
-        C->suiv = R->commodites;
+        C->suiv = R->commodites; // Ajout de la commodité à la tête de la liste des commodités
         R->commodites = C;
 
-        c = c->suiv;
+        c = c->suiv; // Passage à la chaîne suivante dans la structure Chaines
     }
 
-    return R;
+    return R; // Retourne le réseau reconstitué
 }
 
-//Comptage des liaisons
+
+// Compte le nombre de liaisons dans le réseau
 int nbLiaisons(Reseau *R){
-    if(R==NULL){
-        printf("Impossible de compter nombre de liaisons d'un réseau qui n'existe pas\n");
+    // Vérifie si le réseau est valide
+    if(R == NULL){
+        printf("Impossible de compter le nombre de liaisons d'un réseau qui n'existe pas\n");
         return -1;
     }
 
-    int cpt = 0;
-    Noeud* dejaVu[R->nbNoeuds]; //Tableau pour stocker les noeuds deja vus
-    int vu = 0; //int servant comme booléen pour vérifier si noeud a été vu ou non
+    int cpt = 0; // Initialisation du compteur de liaisons
+    Noeud* dejaVu[R->nbNoeuds]; // Tableau pour stocker les nœuds déjà vus
+    int vu = 0; // Variable booléenne pour vérifier si un nœud a été vu ou non
 
-    CellNoeud *vois, *c = R->noeuds;
-    //Boucle passant par tous les noeuds du Reseau
-    for(int i=0; i<(R->nbNoeuds); i++){
-        vois = c->nd->voisins;
+    CellNoeud *vois, *c = R->noeuds; // Pointeur vers la liste des nœuds dans le réseau
+    // Parcours de tous les nœuds du réseau
+    for(int i = 0; i < R->nbNoeuds; i++){
+        vois = c->nd->voisins; // Pointeur vers la liste des voisins du nœud courant
 
-        //Boucle passant par tous les voisins du noeud
+        // Parcours de tous les voisins du nœud courant
         while(vois){
-            vu = 0;
-            //Boucle passant par les noeuds deja vus
-            for(int j=0; j<i; j++){
+            vu = 0; // Réinitialisation de la variable booléenne
+
+            // Parcours des nœuds déjà vus
+            for(int j = 0; j < i; j++){
                 if(dejaVu[j] == vois->nd){
-                    vu = 1;
+                    vu = 1; // Le nœud a été vu
                     break;
                 }
             }
 
+            // Si le nœud n'a pas été vu, on incrémente le compteur de liaisons
             if(!(vu)){
-                //Si ce noeud n'a pas été vu, on incremente le compteur de liaisons
                 cpt++;
             }
 
-            vois = vois->suiv;
+            vois = vois->suiv; // Passage au voisin suivant du nœud courant
         }
 
-        dejaVu[i] = c->nd;
-        c = c->suiv;
+        dejaVu[i] = c->nd; // Ajout du nœud courant dans le tableau des nœuds déjà vus
+        c = c->suiv; // Passage au nœud suivant dans la liste des nœuds
     }
 
-    return cpt;
+    return cpt; // Retourne le nombre de liaisons
 }
 
-//Comptage commodites
+
+// Compte le nombre de commodités dans le réseau
 int nbCommodites(Reseau *R){
-    if(R==NULL){
-        printf("Impossible de compter nombre de liaisons d'un réseau qui n'existe pas\n");
+    // Vérifie si le réseau est valide
+    if(R == NULL){
+        printf("Impossible de compter le nombre de commodités d'un réseau qui n'existe pas\n");
         return -1;
     }
 
-    int cpt = 0;
-    CellCommodite *C = R->commodites;
+    int cpt = 0; // Initialisation du compteur de commodités
+    CellCommodite *C = R->commodites; // Pointeur vers la liste des commodités dans le réseau
+
+    // Parcours de toutes les commodités dans le réseau
     while(C){
-        cpt++;
-        C = C->suiv;
+        cpt++; // Incrémentation du compteur
+        C = C->suiv; // Passage à la commodité suivante
     }
 
-    return cpt;
+    return cpt; // Retourne le nombre de commodités
 }
 
 
-//Ecriture du reseau
+
+// Écriture du réseau dans un fichier
 void ecrireReseau(Reseau *R, FILE *f){
-    if(R==NULL){
-        printf("Impossible d'ecrire reseau qui n'existe pas\n");
+    // Vérifie si le réseau et le fichier sont valides
+    if(R == NULL){
+        printf("Impossible d'écrire un réseau qui n'existe pas\n");
         return;
     }
-    if(f==NULL){
-        printf("Fichier d'ecriture ne s'est pas ouvert\n");
+    if(f == NULL){
+        printf("Impossible d'écrire dans un fichier qui ne s'est pas ouvert\n");
         return;
     }
 
-    //Ecriture informations générales du réseau
+    // Écriture des informations générales du réseau dans le fichier
     fprintf(f, "NbNoeuds: %d\n", R->nbNoeuds);
     fprintf(f, "NbLiaisons: %d\n", nbLiaisons(R));
     fprintf(f, "nbCommodites: %d\n", nbCommodites(R));
-    fprintf(f,"Gamma: %d\n\n", R->gamma);
+    fprintf(f, "Gamma: %d\n\n", R->gamma);
 
-    //Ecriture des noeuds et des liaisons du reseau
-    //On reprend des instructions similaires à celles du comptage de liaisons
-    Noeud* dejaVu[R->nbNoeuds]; //Tableau pour stocker les noeuds deja vus
-    int vu = 0; //int servant comme booléen pour vérifier si noeud a été vu ou non
+    // Écriture des noeuds et des liaisons du réseau dans le fichier
+    Noeud* dejaVu[R->nbNoeuds]; // Tableau pour stocker les noeuds déjà vus
+    int vu = 0; // Variable booléenne pour vérifier si un noeud a été vu ou non
 
     CellNoeud *c = R->noeuds, *vois;
-    char liaisbuffer[256]; //Buffer pour stocker ecriture des liaisons
-    char buffer[256] = ""; //Buffer initial sur lequel les liaisons seront concaténées
+    char liaisbuffer[256]; // Buffer pour stocker l'écriture des liaisons
+    char buffer[256] = ""; // Buffer initial sur lequel les liaisons seront concaténées
 
-    //Boucle passant par tous les noeuds du Reseau
-    for(int i=0; i<(R->nbNoeuds); i++){
-        //On ecrit le noeud
+    // Parcours de tous les noeuds du réseau
+    for(int i = 0; i < R->nbNoeuds; i++){
+        // Écriture du noeud dans le fichier
         fprintf(f, "v %d %lf %lf\n", c->nd->num, c->nd->x, c->nd->y);
 
+        // Parcours de tous les voisins du noeud
         vois = c->nd->voisins;
-        //Boucle passant par tous les voisins du noeud
         while(vois){
             vu = 0;
-            //Boucle passant par les noeuds deja vus
-            for(int j=0; j<i; j++){
+            // Vérifie si le voisin a déjà été vu
+            for(int j = 0; j < i; j++){
                 if(dejaVu[j] == vois->nd){
                     vu = 1;
                     break;
                 }
             }
 
+            // Si le voisin n'a pas été vu, écrit la liaison dans le buffer
             if(!(vu)){
-                //Si ce noeud n'a pas été vu, on ecrit la liaison
                 sprintf(liaisbuffer, "l %d %d\n", vois->nd->num, c->nd->num);
                 strcat(buffer, liaisbuffer);
             }
@@ -406,9 +439,9 @@ void ecrireReseau(Reseau *R, FILE *f){
         dejaVu[i] = c->nd;
         c = c->suiv;
     }
-    fprintf(f, "\n%s\n", buffer);
+    fprintf(f, "\n%s\n", buffer); // Écriture des liaisons dans le fichier
 
-    //Ecriture des commodites
+    // Écriture des commodités dans le fichier
     CellCommodite *C = R->commodites;
     while(C){
         fprintf(f, "k %d %d\n", C->extrA->num, C->extrB->num);
@@ -416,31 +449,41 @@ void ecrireReseau(Reseau *R, FILE *f){
     }
 }
 
-//Ecriture du fichier SVG a partir du reseau
-void afficheReseauSVG(Reseau *R, char* nomInstance){
-    CellNoeud *courN,*courv;
-    SVGwriter svg;
-    double maxx=0,maxy=0,minx=1e6,miny=1e6;
 
-    courN=R->noeuds;
-    while (courN!=NULL){
-        if (maxx<courN->nd->x) maxx=courN->nd->x;
-        if (maxy<courN->nd->y) maxy=courN->nd->y;
-        if (minx>courN->nd->x) minx=courN->nd->x;
-        if (miny>courN->nd->y) miny=courN->nd->y;
-        courN=courN->suiv;
+// Affichage du réseau en SVG à partir du réseau
+void afficheReseauSVG(Reseau *R, char* nomInstance){
+    CellNoeud *courN, *courv;
+    SVGwriter svg;
+    double maxx = 0, maxy = 0, minx = 1e6, miny = 1e6;
+
+    // Recherche des coordonnées maximales et minimales pour le redimensionnement
+    courN = R->noeuds;
+    while (courN != NULL){
+        if (maxx < courN->nd->x) maxx = courN->nd->x;
+        if (maxy < courN->nd->y) maxy = courN->nd->y;
+        if (minx > courN->nd->x) minx = courN->nd->x;
+        if (miny > courN->nd->y) miny = courN->nd->y;
+        courN = courN->suiv;
     }
-    SVGinit(&svg,nomInstance,500,500);
-    courN=R->noeuds;
-    while (courN!=NULL){
-        SVGpoint(&svg,500*(courN->nd->x-minx)/(maxx-minx),500*(courN->nd->y-miny)/(maxy-miny));
-        courv=courN->nd->voisins;
-        while (courv!=NULL){
-            if (courv->nd->num<courN->nd->num)
-                SVGline(&svg,500*(courv->nd->x-minx)/(maxx-minx),500*(courv->nd->y-miny)/(maxy-miny),500*(courN->nd->x-minx)/(maxx-minx),500*(courN->nd->y-miny)/(maxy-miny));
-            courv=courv->suiv;
+
+    // Initialisation du fichier SVG
+    SVGinit(&svg, nomInstance, 500, 500);
+
+    // Dessin des points et des liaisons du réseau
+    courN = R->noeuds;
+    while (courN != NULL){
+        SVGpoint(&svg, 500 * (courN->nd->x - minx) / (maxx - minx), 500 * (courN->nd->y - miny) / (maxy - miny));
+        courv = courN->nd->voisins;
+        while (courv != NULL){
+            // Dessine seulement une liaison pour chaque paire de noeuds pour éviter la redondance
+            if (courv->nd->num < courN->nd->num)
+                SVGline(&svg, 500 * (courv->nd->x - minx) / (maxx - minx), 500 * (courv->nd->y - miny) / (maxy - miny),
+                        500 * (courN->nd->x - minx) / (maxx - minx), 500 * (courN->nd->y - miny) / (maxy - miny));
+            courv = courv->suiv;
         }
-        courN=courN->suiv;
+        courN = courN->suiv;
     }
+
+    // Finalisation du fichier SVG
     SVGfinalize(&svg);
 }
