@@ -4,10 +4,11 @@
 
 /*Creation et Liberation*/
 /*Creation Arete*/
+// Crée une nouvelle arête avec les sommets u et v
 Arete* creerArete(int u, int v){
     Arete *a = (Arete*)malloc(sizeof(Arete));
-    if(a==NULL){
-        printf("Erreur malloc création Arete\n");
+    if(a == NULL){
+        printf("Erreur lors de l'allocation mémoire pour la création d'une arête\n");
         return NULL;
     }
     a->u = u;
@@ -15,18 +16,17 @@ Arete* creerArete(int u, int v){
 
     return a;
 }
-/*Liberation d'une arete est un simple free*/
 
-/*Creation Cellule_arete*/
+// Crée une nouvelle cellule d'arête contenant l'arête donnée
 Cellule_arete* creerCellule_arete(Arete *a){
-    if(a==NULL){
-        printf("Impossible de creer Cellule_arete pour arete qui n'existe pas\n");
+    if(a == NULL){
+        printf("Impossible de créer une cellule d'arête pour une arête inexistante\n");
         return NULL;
     }
 
     Cellule_arete* c = (Cellule_arete*)malloc(sizeof(Cellule_arete));
-    if(c==NULL){
-        printf("Erreur malloc creation Cellule_arete\n");
+    if(c == NULL){
+        printf("Erreur lors de l'allocation mémoire pour la création d'une cellule d'arête\n");
         return NULL;
     }
 
@@ -36,10 +36,10 @@ Cellule_arete* creerCellule_arete(Arete *a){
     return c;
 }
 
-/*Liberation Cellule_arete*/
+// Libère la mémoire allouée pour une cellule d'arête
 void libererCellule_Arete(Cellule_arete *c){
-    if(c==NULL){
-        printf("Cellule_arete deja libérée\n");
+    if(c == NULL){
+        printf("La cellule d'arête est déjà libérée\n");
         return;
     }
 
@@ -49,7 +49,8 @@ void libererCellule_Arete(Cellule_arete *c){
     free(c);
 }
 
-/*Creation Sommet*/
+
+// Crée un nouveau sommet avec le numéro, les coordonnées x et y spécifiés.
 Sommet* creerSommet(int num, double x, double y){
     Sommet* s = (Sommet*)malloc(sizeof(Sommet));
     if(s==NULL){
@@ -64,10 +65,10 @@ Sommet* creerSommet(int num, double x, double y){
     return s;
 }
 
-/*Liberation Sommet*/
+/* Libère la mémoire allouée pour un sommet */
 void libererSommet(Sommet *s){
     if(s==NULL){
-        printf("Sommet deja libere\n");
+        printf("Sommet déjà libéré\n");
         return;
     }
 
@@ -75,88 +76,95 @@ void libererSommet(Sommet *s){
     free(s);
 }
 
-/*Mise a jour des aretes d'un sommet*/
+/* Met à jour les arêtes d'un sommet à partir des voisins d'un noeud */
 void majAretes(Graphe *g, Sommet *s, Noeud *n){
-    /*Boucle passant par tous les voisins du noeud*/
+    // Boucle passant par tous les voisins du noeud
     CellNoeud *nvois = n->voisins;
     while(nvois){
-        /*On cherche le sommet correspondant au noeud voisin*/
+        // On cherche le sommet correspondant au noeud voisin
         Sommet *svois = g->T_som[((nvois->nd->num)-1)];
 
-            /*Si le sommet correspondant au voisin a ete créé, on ajoute l'arete
-            Sinon, ce sommet sera créé plus tard*/
-            if(svois){
-                /*On sait que l'arete n'existe pas car le nouveau sommet viens d'etre créé
-                Nous créons donc l'arete et nous l'ajoutons en tete de liste (des deux sommets!)*/
-                Arete *a = creerArete(s->num, svois->num);
-                Cellule_arete *c = creerCellule_arete(a);
-                Cellule_arete *cvois = creerCellule_arete(a);
+        // Si le sommet correspondant au voisin a été créé, on ajoute l'arête
+        // Sinon, ce sommet sera créé plus tard
+        if(svois){
+            // Création de l'arête
+            Arete *a = creerArete(s->num, svois->num);
+            // Création des cellules d'arête pour chaque sommet
+            Cellule_arete *c = creerCellule_arete(a);
+            Cellule_arete *cvois = creerCellule_arete(a);
 
-                c->suiv = s->L_voisin;
-                s->L_voisin = c;
+            // Ajout de l'arête en tête de liste pour le sommet actuel
+            c->suiv = s->L_voisin;
+            s->L_voisin = c;
 
-                cvois->suiv = svois->L_voisin;
-                svois->L_voisin = cvois;
-            }
+            // Ajout de l'arête en tête de liste pour le sommet voisin
+            cvois->suiv = svois->L_voisin;
+            svois->L_voisin = cvois;
+        }
 
         nvois = nvois->suiv;
     }
 }
 
-/*Creation Graphe*/
+
 Graphe* creerGraphe(Reseau* r){
+    // Vérifie si le réseau existe
     if(r == NULL){
-        printf("Impossible de creer Graphe a partir d'un reseau qui n'existe pas\n");
+        printf("Impossible de créer un graphe à partir d'un réseau inexistant\n");
         return NULL;
     }
 
+    // Alloue de la mémoire pour le graphe
     Graphe *g = (Graphe*)malloc(sizeof(Graphe));
     if(g==NULL){
-        printf("Erreur malloc création Graphe\n");
+        printf("Erreur lors de l'allocation mémoire pour la création du graphe\n");
         return NULL;
     }
 
-    /*Initialisation des variables de g*/
+    // Initialise les variables du graphe
     g->nbsom = r->nbNoeuds;
     g->gamma = r->gamma;
     g->nbcommod = nbCommodites(r);
 
+    // Alloue de la mémoire pour le tableau de sommets
     g->T_som = (Sommet**)malloc(sizeof(Sommet*) * g->nbsom);
     if(g->T_som == NULL){
-        printf("Erreur malloc T_som création Graphe\n");
+        printf("Erreur lors de l'allocation mémoire pour le tableau de sommets du graphe\n");
         free(g);
         return NULL;
     }
+    // Initialise chaque élément du tableau à NULL
     for(int i=0; i < g->nbsom; i++){
         g->T_som[i] = NULL;
     }
 
+    // Alloue de la mémoire pour le tableau de commodités
     g->T_commod = (Commod*)malloc(sizeof(Commod) * g->nbcommod);
     if(g->T_commod == NULL){
-        printf("Erreur malloc T_commod création Graphe\n");
+        printf("Erreur lors de l'allocation mémoire pour le tableau de commodités du graphe\n");
         free(g->T_som);
         free(g);
         return NULL;
     }
 
-    /*Boucle qui parcours tous les noeuds du Reseau*/
+    // Boucle parcourant tous les nœuds du réseau
     CellNoeud *cr = r->noeuds;
     int num;
     for(int i=0; i < g->nbsom; i++){
-        /*Creation du sommet correspondant au noeud*/
-        /*Le numero du noeud (-1 car ils commencent a 1) correspond au numero du sommet, et donc de sa position dans le tableau*/
-        num = (cr->nd->num) - 1;
+        // Crée un sommet correspondant à chaque nœud du réseau
+        num = (cr->nd->num) - 1; // Le numéro du sommet correspond à la position dans le tableau
         g->T_som[num] = creerSommet(num, cr->nd->x, cr->nd->y);
         
-        /*Mise a jour aretes*/
+        // Met à jour les arêtes du sommet
         majAretes(g, g->T_som[num], cr->nd);
 
         cr = cr->suiv;
     }
 
-    /*Boucle passant par toutes les commodites du Reseau*/
+    // Boucle parcourant toutes les commodités du réseau
     CellCommodite *Cr = r->commodites;
     for(int i=0; i<(g->nbcommod); i++){
+        // Initialise les commodités à partir des extrémités des commodités du réseau
         Commod C;
         C.e1 = (Cr->extrA->num)-1;
         C.e2 = (Cr->extrB->num)-1;
@@ -168,9 +176,10 @@ Graphe* creerGraphe(Reseau* r){
     return g;
 }
 
+// Libère la mémoire allouée pour un graphe
 void libererGraphe(Graphe *g){
     if(g==NULL){
-        printf("Graphe deja libere\n");
+        printf("Le graphe est déjà libéré\n");
         return;
     }
 
@@ -179,7 +188,7 @@ void libererGraphe(Graphe *g){
         s = g->T_som[i];
         Cellule_arete *ctemp, *c = s->L_voisin;
         while(c){
-            /*Pour ne pas liberer 2 fois la meme arete, on verifie si nous allons la rencontrer plus tard ou pas*/
+            // Vérifie si l'arête a déjà été libérée
             if((c->a->u <= i) && (c->a->v <= i)){
                 free(c->a);
             }
