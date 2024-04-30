@@ -1,0 +1,15 @@
+set terminal postscript portrait
+
+set title "Temps de reconstitution"
+set xlabel "Temps (s)"
+set ylabel "Nombre de points"
+
+set output "courbesVitesseListe.ps"
+
+plot "meilleurCalculTemps.txt" using 1:2 title 'Liste' with lines
+
+
+set output "courbesVitesseHachArbre.ps"
+
+plot "meilleurCalculTemps.txt" using 1:3 title 'Hach' with lines, \
+    "meilleurCalculTemps.txt" using 1:4 title 'ArbreQuat' with lines
