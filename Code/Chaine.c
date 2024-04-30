@@ -142,76 +142,78 @@ void ins_en_tete_point(CellChaine* c, double x, double y){
 //Creation d'un ensemble de chaines par lecture d'un fichier
 Chaines* lectureChaines(FILE* f){
     if(f==NULL){
-        printf("Fichier n'existe pas\n");
+        printf("Fichier n'existe pas\n"); // Vérifie si le fichier est valide
         return NULL;
     }
     
-    //Lecture de Gamma et NbChaines
+    // Lecture de Gamma et NbChaines depuis le fichier
     int gamma, nbChaines;
     char buffer[256];
-    fgets(buffer, 256, f);
-    sscanf(buffer, "NbChain: %d", &nbChaines);
-    fgets(buffer, 256, f);
-    sscanf(buffer, "Gamma: %d", &gamma);
-    fgets(buffer, 256, f);
+    fgets(buffer, 256, f); // Lecture de la première ligne
+    sscanf(buffer, "NbChain: %d", &nbChaines); // Extrait le nombre de chaînes depuis la première ligne
+    fgets(buffer, 256, f); // Lecture de la deuxième ligne
+    sscanf(buffer, "Gamma: %d", &gamma); // Extrait la valeur de gamma depuis la deuxième ligne
+    fgets(buffer, 256, f); // Lecture de la troisième ligne (saut de ligne)
 
-    //Création de l'ensemble des chaines
-    Chaines* C = creer_chaines(gamma, nbChaines);
+    // Création de l'ensemble des chaînes
+    Chaines* C = creer_chaines(gamma, nbChaines); // Crée un ensemble de chaînes avec les valeurs de gamma et nbChaines
     if(C==NULL){
         printf("Ensemble de chaines non créées, impossible de lire les données\n");
         return NULL;
     }
 
-    //Lecture des chaines et des points
+    // Lecture des chaînes et des points
     int numero, nbpoints;
     double x, y;
     char* donnee;
     for(int i=0; i<nbChaines; i++){
-        //Lecture de numero et nbpoints avec strtok definissant l'espace comme delimiteur
+        // Lecture du numéro et du nombre de points avec strtok définissant l'espace comme délimiteur
         donnee = strtok(buffer, " ");
-        sscanf(donnee, "%d", &numero);
+        sscanf(donnee, "%d", &numero); // Extrait le numéro de la chaîne
         donnee = strtok(NULL, " ");
-        sscanf(donnee, "%d", &nbpoints);
-        donnee = strtok(NULL, " ");
+        sscanf(donnee, "%d", &nbpoints); // Extrait le nombre de points dans la chaîne
+        donnee = strtok(NULL, " "); // Passe au prochain token (saut de ligne)
 
+        // Insertion de la chaîne dans l'ensemble de chaînes
         ins_en_tete_chaine(C, numero);
 
-        //Lecture des points
+        // Lecture des points de la chaîne
         for(int j=0; j<nbpoints; j++){
-            sscanf(donnee, "%lf", &x);
-            donnee = strtok(NULL, " ");
-            sscanf(donnee, "%lf", &y);
-            donnee = strtok(NULL, " ");
+            sscanf(donnee, "%lf", &x); // Extrait la coordonnée x du point
+            donnee = strtok(NULL, " "); // Passe à la coordonnée y
+            sscanf(donnee, "%lf", &y); // Extrait la coordonnée y du point
+            donnee = strtok(NULL, " "); // Passe au prochain token (saut de ligne)
 
-            ins_en_tete_point(C->chaines, x, y); //C->chaines sera toujours la bonne chaine comme l'insertion est en tete
+            ins_en_tete_point(C->chaines, x, y); // Insère le point dans la chaîne
         }
 
-        fgets(buffer, 256, f);
+        fgets(buffer, 256, f); // Lecture de la prochaine ligne
     }
 
     return C;
 }
 
+
 //Ecriture d'un ensemble de chaines dans un fichier
 void ecrireChaines(Chaines *C, FILE *f){
     if(f==NULL){
-        printf("Fichier n'existe pas\n");
+        printf("Fichier n'existe pas\n"); // Vérifie si le fichier est valide
         return;
     }
 
     if(C==NULL){
-        printf("L'ensemble de chaines n'existe pas\n");
+        printf("L'ensemble de chaines n'existe pas\n"); // Vérifie si l'ensemble de chaînes est valide
         return;
     }
 
-    //Ecriture informations sur l'ensemble des chaines
+    // Écriture des informations sur l'ensemble des chaînes dans le fichier
     fprintf(f, "NbChain: %d\n", C->nbChaines);
     fprintf(f,"Gamma: %d\n", C->gamma);
 
-    //Ecriture chaines
+    // Écriture des chaînes
     CellChaine* c = C->chaines;
     if(c==NULL){
-        //Cas ou il n'y a pas de chaines dans l'ensemble de chaines
+        // Cas où il n'y a pas de chaînes dans l'ensemble de chaînes
         return;
     }
 
@@ -219,18 +221,19 @@ void ecrireChaines(Chaines *C, FILE *f){
     CellPoint* p;
     int cpt;
     while(c){
-        sprintf(buffer, "");
+        sprintf(buffer, ""); // Initialise la chaîne de caractères buffer
         cpt = 0;
 
-        //Deuxieme boucle passant par tous les points pour les ecrire dans le fichier
+        // Deuxième boucle parcourant tous les points pour les écrire dans le fichier
         p = c->points;
         while(p){
-            sprintf(coordBuffer, "%.2f %.2f ", p->x, p->y);
-            strcat(buffer, coordBuffer);
+            sprintf(coordBuffer, "%.2f %.2f ", p->x, p->y); // Écriture des coordonnées du point dans coordBuffer
+            strcat(buffer, coordBuffer); // Concaténation de coordBuffer à buffer
             cpt++;
             p = p->suiv;
         }
 
+        // Écriture des données de la chaîne dans le fichier
         fprintf(f, "%d %d %s\n", c->numero, cpt, buffer);
         c = c->suiv;
     }
@@ -285,80 +288,82 @@ void afficheChainesSVG(Chaines *C, char* nomInstance){
 //Question 1.4
 double longueurChaine(CellChaine *c){
     if(c==NULL){
-        printf("Impossible de calculer longueur de chaine qui n'existe pas\n");
+        printf("Impossible de calculer la longueur de la chaîne qui n'existe pas\n"); // Vérifie si la chaîne est valide
         return -1;
     }
 
-    CellPoint *a = c->points; //Point a: premier point
+    CellPoint *a = c->points; // Initialise un pointeur de cellule de point au premier point de la chaîne
     if(a==NULL){
-        printf("La chaine n'a pas de points\n");
+        printf("La chaîne n'a pas de points\n"); // Vérifie si la chaîne contient des points
         return 0;
     }
 
-    CellPoint *b = a->suiv; //Point b: point suivant
-    if(b==NULL){
-        printf("La chaine n'a qu'un seul point\n");
+    CellPoint *b = a->suiv; // Initialise un pointeur de cellule de point au point suivant
+    if(b==NULL){ // Vérifie si la chaîne contient plus d'un point
+        printf("La chaîne n'a qu'un seul point\n"); // Vérifie si la chaîne contient plus d'un point
         return 0;
     }
 
-    double xa, ya, xb, yb, longueur = 0;
+    double xa, ya, xb, yb, longueur = 0; // Déclare des variables pour les coordonnées et la longueur
     while(b){
-        xa = a->x;
-        ya = a->y;
-        xb = b->x;
-        yb = b->y;
+        xa = a->x; // Récupère la coordonnée x du point a
+        ya = a->y; // Récupère la coordonnée y du point a
+        xb = b->x; // Récupère la coordonnée x du point b
+        yb = b->y; // Récupère la coordonnée y du point b
 
-        longueur += sqrt(pow((xb-xa),2) + pow((yb-ya),2));//formule donnée
+        longueur += sqrt(pow((xb-xa),2) + pow((yb-ya),2)); // Calcule la distance entre les points a et b et l'ajoute à la longueur totale
 
-        a = a->suiv;
-        b = b->suiv;
+        a = a->suiv; // Passe au point suivant dans la chaîne
+        b = b->suiv; // Passe au point suivant dans la chaîne
     }
 
-    return longueur;
+    return longueur; 
 }
+
 
 double longueurTotale(Chaines *C){
     if(C==NULL){
-        printf("Impossible de calculer longueur d'un ensemble de chaines qui n'existe pas\n");
+        printf("Impossible de calculer la longueur d'un ensemble de chaînes qui n'existe pas\n"); // Vérifie si l'ensemble de chaînes est valide
         return -1;
     }
 
-    double lc, longueur = 0;
-    CellChaine* c = C->chaines;
+    double lc, longueur = 0; //variable pour la longueur de la chaîne actuelle et une variable pour la longueur totale
+    CellChaine* c = C->chaines; // pointeur de cellule de chaîne au début de l'ensemble de chaînes
     while(c){
-        lc = longueurChaine(c);
+        lc = longueurChaine(c); // Calcule la longueur de la chaîne actuelle en appelant la fonction longueurChaine
 
         if(lc<0){
-            printf("Erreur calcul longueur totale\n");
+            printf("Erreur calcul longueur totale\n"); // Vérifie si le calcul de la longueur de la chaîne actuelle a échoué
             return -1;
         }else{
-            longueur += lc;
+            longueur += lc; // Ajoute la longueur de la chaîne actuelle à la longueur totale
         }
 
-        c = c->suiv;
+        c = c->suiv; // Passe à la chaîne suivante dans l'ensemble de chaînes
     }
 
     return longueur;
 }
 
+
 int comptePointsTotal(Chaines *C){
     if(C==NULL){
-        printf("Impossible de compter les points dans un ensemble de chaines qui n'existe pas\n");
+        printf("Impossible de compter les points dans un ensemble de chaînes qui n'existe pas\n");
         return -1;
     }
 
-    CellChaine* c = C->chaines;
+    CellChaine* c = C->chaines; //pointeur de cellule de chaîne au début de l'ensemble de chaînes
     CellPoint* p;
-    int cpt = 0;
+    int cpt = 0; // Compteur de nombre de points 
     while(c){
-        p = c->points;
+        p = c->points; // Initialise le pointeur de cellule de point au début de la chaîne actuelle
 
         while(p){
             cpt++;
-            p = p->suiv;
+            p = p->suiv; // Passe au point suivant dans la chaîne
         }
 
-        c = c->suiv;
+        c = c->suiv; // Passe à la chaîne suivante dans l'ensemble de chaînes
     }
 
     return cpt;
@@ -375,13 +380,13 @@ Chaines* generationAleatoire(int nbChaines, int nbPointsChaine, int xmax, int ym
     srand(time(NULL));
     double x, y;
 
-    /*Boucle passant par toutes les chaines*/
+    //Boucle passant par toutes les chaines
     for(int i=1; i<=nbChaines; i++){
         ins_en_tete_chaine(C, i);
 
-        /*Boucle créant tous les points de la chaine*/
+        //Boucle créant tous les points de la chaine
         for(int j=0; j<nbPointsChaine; j++){
-            /*Definition coordonnees du nouveau point*/
+            //Definition coordonnees du nouveau point
             x = xmax* ((double)rand() / (double)RAND_MAX);
             y = ymax* ((double)rand() / (double)RAND_MAX);
             

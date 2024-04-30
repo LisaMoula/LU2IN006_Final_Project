@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv){
     if(argc<2){
-        printf("Trop peu d'arguments\nUsage: %s nom_fichier\n", argv[0]);
+        printf("Usage: %s nom_fichier\n", argv[0]);
         return 1;
     }
 
