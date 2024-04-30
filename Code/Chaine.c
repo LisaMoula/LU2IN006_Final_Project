@@ -265,7 +265,6 @@ void ecrireChaines(Chaines *C, FILE *f){
 
 
 //Question 1.3
-```c
 // Crée un fichier SVG en HTML à partir d'une structure Chaines.
 void afficheChainesSVG(Chaines *C, char* nomInstance){
 
@@ -325,7 +324,6 @@ void afficheChainesSVG(Chaines *C, char* nomInstance){
     // Finalise le fichier SVG.
     SVGfinalize(&svg);
 }
-```
 
 
 //Question 1.4

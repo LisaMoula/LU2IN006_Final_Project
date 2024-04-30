@@ -4,21 +4,20 @@
 
 //Fonctions de création et libération
 // Crée une nouvelle cellule de voisin contenant le noeud donné.
-CellNoeud* creer_CellNoeud(Noeud* n){
-    // Alloue de la mémoire pour la cellule de voisin
-    CellNoeud *c = (CellNoeud*)malloc(sizeof(CellNoeud));
-    if(c==NULL){
-        printf("Erreur malloc CellNoeud\n");
+Noeud* creer_Noeud(int num, double x, double y){
+    Noeud *n = (Noeud*)malloc(sizeof(Noeud));
+    if(n==NULL){
+        printf("Erreur malloc Noeud\n");
         return NULL;
     }
 
-    // Initialise la cellule de voisin avec le noeud donné
-    c->nd = n;
-    c->suiv = NULL; // Initialise le pointeur suivant à NULL
+    n->num = num;
+    n->x = x;
+    n->y = y;
+    n->voisins = NULL;
 
-    return c; // Renvoie la nouvelle cellule de voisin créée
+    return n;
 }
-
 
 //Liberation Noeud
 // Libère la mémoire allouée pour un noeud et ses voisins
