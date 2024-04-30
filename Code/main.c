@@ -92,11 +92,11 @@ int main(int argc, char** argv) {
                 /*Liste*/
                 clock_t debut ,fin;
                 debut= clock();
-                //Reseau *R1 = reconstitueReseauListe(C);
-                //fin = clock();
+                Reseau *R1 = reconstitueReseauListe(C);
+                fin = clock();
 
-                //tempsListe = ((double)(fin - debut)) / CLOCKS_PER_SEC;
-                //liberer_Reseau(R1);
+                tempsListe = ((double)(fin - debut)) / CLOCKS_PER_SEC;
+                liberer_Reseau(R1);
 
                 /*Table de hachage*/
                 debut = clock();
