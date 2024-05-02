@@ -170,13 +170,13 @@ Chaines* lectureChaines(FILE* f){
     }
     
     int gamma, nbChaines;
-    char buffer[256];
+    char buffer[10000];
     // Lit le nombre de chaînes et le paramètre gamma depuis le fichier.
-    fgets(buffer, 256, f);
+    fgets(buffer, 10000, f);
     sscanf(buffer, "NbChain: %d", &nbChaines);
-    fgets(buffer, 256, f);
+    fgets(buffer, 10000, f);
     sscanf(buffer, "Gamma: %d", &gamma);
-    fgets(buffer, 256, f); // Ignore la troisième ligne (saut de ligne)
+    fgets(buffer, 10000, f); // Ignore la troisième ligne (saut de ligne)
 
     // Crée un nouvel ensemble de chaînes avec les valeurs lues depuis le fichier.
     Chaines* C = creer_chaines(gamma, nbChaines);
@@ -211,7 +211,7 @@ Chaines* lectureChaines(FILE* f){
             ins_en_tete_point(C->chaines, x, y);
         }
 
-        fgets(buffer, 256, f); // Lit la ligne suivante du fichier.
+        fgets(buffer, 10000, f); // Lit la ligne suivante du fichier.
     }
 
     return C; // Renvoie l'ensemble de chaînes lu depuis le fichier.
