@@ -1,3 +1,5 @@
+//MOULA Lisa 21215357
+//DUPART Guillaume 28710554
 
 
 #ifndef __ARBRE_QUAT_H__

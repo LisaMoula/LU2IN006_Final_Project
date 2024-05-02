@@ -1,3 +1,6 @@
+//MOULA Lisa 21215357
+//DUPART Guillaume 28710554
+
 
 #ifndef __RESEAU_H__
 #define __RESEAU_H__

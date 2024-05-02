@@ -1,3 +1,7 @@
+//MOULA Lisa 21215357
+//DUPART Guillaume 28710554
+
+
 #include<stdio.h>
 #include"ArbreQuat.h"
 
