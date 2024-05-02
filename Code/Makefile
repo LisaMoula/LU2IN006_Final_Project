@@ -1,5 +1,4 @@
 
-
 CC = gcc
 CFLAGS = -Wno-format-zero-length -g
 
@@ -28,7 +27,10 @@ Graphe.o: Graphe.c
 GrapheMain.o: GrapheMain.c
 	$(CC) $(CFLAGS) -c $^
 
-GrapheMain: GrapheMain.o Chaine.o Reseau.o ArbreQuat.o Graphe.o SVGwriter.o
+Struct_File.o: Struct_File.c
+	$(CC) $(CFLAGS) -c $^
+
+GrapheMain: GrapheMain.o Chaine.o Reseau.o ArbreQuat.o Graphe.o Struct_File.o SVGwriter.o
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 #ArbreQuat

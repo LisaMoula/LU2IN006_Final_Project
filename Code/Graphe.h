@@ -1,13 +1,13 @@
 //MOULA Lisa 21215357
 //DUPART Guillaume 28710554
 
-
 #ifndef __GRAPHE_H__
 #define __GRAPHE_H__
 
 #include<stdlib.h>
 #include<stdio.h>
 #include"ArbreQuat.h"
+#include"Struct_File.h"
 
 typedef struct{
     int u, v; /* Numeros des sommets extremite */
@@ -44,5 +44,13 @@ Graphe* creerGraphe(Reseau* r);
 void libererCellule_Arete(Cellule_arete *c);
 void libererSommet(Sommet *s);
 void libererGraphe(Graphe *g);
+
+/*Question 7.2 et 7.3*/
+S_file* ppChemin(Graphe *g, int sd, int sf);
+
+/*Question 7.4*/
+int** creerMatrice(int nbLignes, int nbColonnes);
+void libererMatrice(int** matrice, int nbLignes);
+int reorganiseReseau(Reseau *r);
 
 #endif
